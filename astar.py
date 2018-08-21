@@ -12,6 +12,7 @@ See Wikipedia article (https://en.wikipedia.org/wiki/A*_search_algorithm)
 import matplotlib.pyplot as plt
 import math
 from collections import OrderedDict
+import timeit
 
 show_animation = True
 
@@ -41,7 +42,7 @@ def calc_final_path(ngoal, closedset, reso):
     return rx, ry
 
 
-def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr):
+def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr, start):
     """
     gx: goal x position [m]
     gx: goal x position [m]
@@ -75,6 +76,8 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr):
                 plt.pause(0.001)
 
         if current.x == ngoal.x and current.y == ngoal.y:
+            stop = timeit.default_timer()
+            print('Time: ', stop - start)  
             print("Find goal")
             ngoal.pind = current.pind
             ngoal.cost = current.cost
@@ -115,12 +118,24 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr):
 
 
 def calc_heuristic(n1, n2):
-    w = 96  # weight of heuristic
+    # w = 100  # weight of heuristic
+    # w2 = 50
 
-    x = n1.x - n2.x
-    y = n1.y - n2.y
+    # x = abs(n1.x - n2.x)
+    # y = abs(n1.y - n2.y)
 
-    d = w * math.hypot(x, y)
+    # angle = math.atan2(y,x)
+    # angle = math.degrees(angle)
+    # if angle > 45:
+    #     angle = abs(angle - 90)
+
+    # d = w * math.hypot(x, y) + angle * w2
+    w = 100  # weight of distance
+
+    x = abs(n1.x - n2.x)
+    y = abs(n1.y - n2.y)
+
+    d = w * math.hypot(x, y) 
 
     return d
 
@@ -180,23 +195,20 @@ def calc_index(node, xwidth, xmin, ymin):
 
 def get_motion_model():
     # dx, dy, cost
-    motion = [[1, 0, 1],
-              [0, 1, 1],
-              [-1, 0, 1],
-              [0, -1, 1],
+    motion = [[1, 0, 0],
+              [0, 1, 0],
+              [-1, 0, 0],
+              [0, -1, 0],
               [-1, -1, 100],
               [-1, 1, 100],
               [1, -1, 100],
               [1, 1, 100]]
-            #   [-1, -1, math.sqrt(2)],
-            #   [-1, 1, math.sqrt(2)],
-            #   [1, -1, math.sqrt(2)],
-            #   [1, 1, math.sqrt(2)]]
 
     return motion
 
 
 def main():
+    start = timeit.default_timer()
     print(__file__ + " start!!")
 
     # start and goal position
@@ -235,7 +247,7 @@ def main():
         plt.grid(True)
         plt.axis("equal")
 
-    rx, ry = a_star_planning(sx, sy, gx, gy, ox, oy, grid_size, robot_size)
+    rx, ry = a_star_planning(sx, sy, gx, gy, ox, oy, grid_size, robot_size, start)
 
     if show_animation:
         plt.plot(rx, ry, "-r")
