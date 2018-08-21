@@ -11,6 +11,7 @@ See Wikipedia article (https://en.wikipedia.org/wiki/A*_search_algorithm)
 
 import matplotlib.pyplot as plt
 import math
+from collections import OrderedDict
 
 show_animation = True
 
@@ -27,7 +28,7 @@ class Node:
         return str(self.x) + "," + str(self.y) + "," + str(self.cost) + "," + str(self.pind)
 
 
-def calc_fianl_path(ngoal, closedset, reso):
+def calc_final_path(ngoal, closedset, reso):
     # generate final course
     rx, ry = [ngoal.x * reso], [ngoal.y * reso]
     pind = ngoal.pind
@@ -59,7 +60,7 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr):
 
     motion = get_motion_model()
 
-    openset, closedset = dict(), dict()
+    openset, closedset = OrderedDict(), OrderedDict()
     openset[calc_index(nstart, xw, minx, miny)] = nstart
 
     while 1:
@@ -69,7 +70,7 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr):
 
         # show graph
         if show_animation:
-            plt.plot(current.x * reso, current.y * reso, "xc")
+            plt.plot(current.x * reso, current.y * reso, ".c")
             if len(closedset.keys()) % 10 == 0:
                 plt.pause(0.001)
 
@@ -108,14 +109,19 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr):
             node.cost = tcost
             openset[n_id] = node  # This path is the best unitl now. record it!
 
-    rx, ry = calc_fianl_path(ngoal, closedset, reso)
+    rx, ry = calc_final_path(ngoal, closedset, reso)
 
     return rx, ry
 
 
 def calc_heuristic(n1, n2):
-    w = 1.0  # weight of heuristic
-    d = w * math.sqrt((n1.x - n2.x)**2 + (n1.y - n2.y)**2)
+    w = 96  # weight of heuristic
+
+    x = n1.x - n2.x
+    y = n1.y - n2.y
+
+    d = w * math.hypot(x, y)
+
     return d
 
 
@@ -178,10 +184,14 @@ def get_motion_model():
               [0, 1, 1],
               [-1, 0, 1],
               [0, -1, 1],
-              [-1, -1, math.sqrt(2)],
-              [-1, 1, math.sqrt(2)],
-              [1, -1, math.sqrt(2)],
-              [1, 1, math.sqrt(2)]]
+              [-1, -1, 100],
+              [-1, 1, 100],
+              [1, -1, 100],
+              [1, 1, 100]]
+            #   [-1, -1, math.sqrt(2)],
+            #   [-1, 1, math.sqrt(2)],
+            #   [1, -1, math.sqrt(2)],
+            #   [1, 1, math.sqrt(2)]]
 
     return motion
 
