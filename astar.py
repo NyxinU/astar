@@ -19,11 +19,12 @@ show_animation = True
 
 class Node:
 
-    def __init__(self, x, y, cost, pind):
+    def __init__(self, x, y, cost, pind, prev=None):
         self.x = x
         self.y = y
         self.cost = cost
         self.pind = pind
+        self.prev = prev
 
     def __str__(self):
         return str(self.x) + "," + str(self.y) + "," + str(self.cost) + "," + str(self.pind)
@@ -61,7 +62,7 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr, start):
 
     motion = get_motion_model()
 
-    openset, closedset = OrderedDict(), OrderedDict()
+    openset, closedset = dict(), dict()
     openset[calc_index(nstart, xw, minx, miny)] = nstart
 
     while 1:
@@ -92,7 +93,7 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr, start):
         for i in range(len(motion)):
             node = Node(current.x + motion[i][0],
                         current.y + motion[i][1],
-                        current.cost + motion[i][2], c_id)
+                        current.cost + motion[i][2], c_id, current)
             n_id = calc_index(node, xw, minx, miny)
 
             if n_id in closedset:
@@ -111,32 +112,19 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr, start):
 
             node.cost = tcost
             openset[n_id] = node  # This path is the best unitl now. record it!
-
+        
     rx, ry = calc_final_path(ngoal, closedset, reso)
 
     return rx, ry
 
 
 def calc_heuristic(n1, n2):
-    # w = 100  # weight of heuristic
-    # w2 = 50
-
-    # x = abs(n1.x - n2.x)
-    # y = abs(n1.y - n2.y)
-
-    # angle = math.atan2(y,x)
-    # angle = math.degrees(angle)
-    # if angle > 45:
-    #     angle = abs(angle - 90)
-
-    # d = w * math.hypot(x, y) + angle * w2
-    w = 100  # weight of distance
+    w = 96  # weight of distance
 
     x = abs(n1.x - n2.x)
-    y = abs(n1.y - n2.y)
+    y = abs(n1.y - n2.y) 
 
-    d = w * math.hypot(x, y) 
-
+    d = w * math.hypot(x, y)
     return d
 
 
@@ -179,13 +167,11 @@ def calc_obstacle_map(ox, oy, reso, vr):
         x = ix + minx
         for iy in range(ywidth):
             y = iy + miny
-            #  print(x, y)
             for iox, ioy in zip(ox, oy):
                 d = math.sqrt((iox - x)**2 + (ioy - y)**2)
                 if d <= vr / reso:
                     obmap[ix][iy] = True
                     break
-
     return obmap, minx, miny, maxx, maxy, xwidth, ywidth
 
 
