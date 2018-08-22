@@ -19,7 +19,7 @@ show_animation = True
 
 class Node:
 
-    def __init__(self, x, y, cost, pind, prev=None):
+    def __init__(self, x, y, cost, pind, prev):
         self.x = x
         self.y = y
         self.cost = cost
@@ -53,8 +53,8 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr, start):
     rr: robot radius[m]
     """
 
-    nstart = Node(round(sx / reso), round(sy / reso), 0.0, -1)
-    ngoal = Node(round(gx / reso), round(gy / reso), 0.0, -1)
+    nstart = Node(round(sx / reso), round(sy / reso), 0.0, -1, None)
+    ngoal = Node(round(gx / reso), round(gy / reso), 0.0, -1, None)
     ox = [iox / reso for iox in ox]
     oy = [ioy / reso for ioy in oy]
 
@@ -105,6 +105,9 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr, start):
             if n_id not in openset:
                 openset[n_id] = node  # Discover a new node
 
+            if abs(nstart.x - node.x) < abs(nstart.x - current.x) and abs(nstart.y - node.y) < abs(nstart.y - current.y):
+               node.cost += 10 
+
             tcost = current.cost + calc_heuristic(current, node)
 
             if tcost >= node.cost:
@@ -119,7 +122,7 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr, start):
 
 
 def calc_heuristic(n1, n2):
-    w = 96  # weight of distance
+    w = 1  # weight of distance
 
     x = abs(n1.x - n2.x)
     y = abs(n1.y - n2.y) 
@@ -185,10 +188,14 @@ def get_motion_model():
               [0, 1, 0],
               [-1, 0, 0],
               [0, -1, 0],
-              [-1, -1, 100],
-              [-1, 1, 100],
-              [1, -1, 100],
-              [1, 1, 100]]
+              [-1, -1, math.sqrt(2)],
+              [-1, 1, math.sqrt(2)],
+              [1, -1, math.sqrt(2)],
+              [1, 1, math.sqrt(2)]]
+            #   [-1, -1, math.sqrt(2)],
+            #   [-1, 1, math.sqrt(2)],
+            #   [1, -1, math.sqrt(2)],
+            #   [1, 1, math.sqrt(2)]]
 
     return motion
 
