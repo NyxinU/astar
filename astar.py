@@ -15,16 +15,18 @@ from collections import OrderedDict
 import timeit
 
 show_animation = True
+motion_model_2 = True
 
 
 class Node:
 
-    def __init__(self, x, y, cost, pind, prev):
+    def __init__(self, x, y, cost, pind, prev, direction):
         self.x = x
         self.y = y
         self.cost = cost
         self.pind = pind
         self.prev = prev
+        self.direction = direction
 
     def __str__(self):
         return str(self.x) + "," + str(self.y) + "," + str(self.cost) + "," + str(self.pind)
@@ -53,8 +55,8 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr, start):
     rr: robot radius[m]
     """
 
-    nstart = Node(round(sx / reso), round(sy / reso), 0.0, -1, None)
-    ngoal = Node(round(gx / reso), round(gy / reso), 0.0, -1, None)
+    nstart = Node(round(sx / reso), round(sy / reso), 0.0, -1, None, None)
+    ngoal = Node(round(gx / reso), round(gy / reso), 0.0, -1, None, None)
     ox = [iox / reso for iox in ox]
     oy = [ioy / reso for ioy in oy]
 
@@ -76,6 +78,7 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr, start):
             if len(closedset.keys()) % 10 == 0:
                 plt.pause(0.001)
 
+        print([current.x,current.y, ngoal.x, ngoal.y])
         if current.x == ngoal.x and current.y == ngoal.y:
             stop = timeit.default_timer()
             print('Time: ', stop - start)  
@@ -83,6 +86,16 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr, start):
             ngoal.pind = current.pind
             ngoal.cost = current.cost
             break
+        
+        if abs(current.x - ngoal.x) <= math.sqrt(2) and abs(current.y - ngoal.y) <= math.sqrt(2):
+            motion = [[1, 0, 0, "E"],
+                [0, 1, 0, "N"],
+                [-1, 0, 0, "W"],
+                [0, -1, 0, "S"],
+                [-1, -1, math.sqrt(2), "SW"],
+                [-1, 1, math.sqrt(2), "NW"],
+                [1, -1, math.sqrt(2), "SE"],
+                [1, 1, math.sqrt(2), "NE"]]
 
         # Remove the item from the open set
         del openset[c_id]
@@ -93,7 +106,7 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr, start):
         for i in range(len(motion)):
             node = Node(current.x + motion[i][0],
                         current.y + motion[i][1],
-                        current.cost + motion[i][2], c_id, current)
+                        current.cost + motion[i][2], c_id, current, motion[i][3])
             n_id = calc_index(node, xw, minx, miny)
 
             if n_id in closedset:
@@ -101,6 +114,11 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr, start):
 
             if not verify_node(node, obmap, minx, miny, maxx, maxy):
                 continue
+
+            # did_hit = hit_obstacle(node, obmap)
+            # if not did_hit [0]: #collision logic
+            #     print(did_hit)
+            #     continue 
 
             if n_id not in openset:
                 openset[n_id] = node  # Discover a new node
@@ -147,6 +165,15 @@ def verify_node(node, obmap, minx, miny, maxx, maxy):
 
     return True
 
+# def hit_obstacle(node, obmap):
+#     if obmap[node.x][node.y]:
+#         if node.direction == "N" or node.direction == "S":
+#             return [False, node.direction, node.x]
+#         else:
+#             return [False, node.direction, node.y]
+
+#     return [True]
+
 
 def calc_obstacle_map(ox, oy, reso, vr):
 
@@ -184,18 +211,25 @@ def calc_index(node, xwidth, xmin, ymin):
 
 def get_motion_model():
     # dx, dy, cost
-    motion = [[1, 0, 0],
-              [0, 1, 0],
-              [-1, 0, 0],
-              [0, -1, 0],
-              [-1, -1, math.sqrt(2)],
-              [-1, 1, math.sqrt(2)],
-              [1, -1, math.sqrt(2)],
-              [1, 1, math.sqrt(2)]]
-            #   [-1, -1, math.sqrt(2)],
-            #   [-1, 1, math.sqrt(2)],
-            #   [1, -1, math.sqrt(2)],
-            #   [1, 1, math.sqrt(2)]]
+    if motion_model_2:
+        return [[2, 0, 0, "E"],
+                [0, 2, 0, "N"],
+                [-2, 0, 0, "W"],
+                [0, -2, 0, "S"],
+                [-2, -2, math.sqrt(4), "SW"],
+                [-2, 2, math.sqrt(4), "NW"],
+                [2, -2, math.sqrt(4), "SE"],
+                [2, 2, math.sqrt(4), "NE"]]
+    else:
+        return [[1, 0, 0, "E"],
+                [0, 1, 0, "N"],
+                [-1, 0, 0, "W"],
+                [0, -1, 0, "S"],
+                [-1, -1, math.sqrt(2), "SW"],
+                [-1, 1, math.sqrt(2), "NW"],
+                [1, -1, math.sqrt(2), "SE"],
+                [1, 1, math.sqrt(2), "NE"]]
+
 
     return motion
 
@@ -207,8 +241,8 @@ def main():
     # start and goal position
     sx = 10.0  # [m]
     sy = 10.0  # [m]
-    gx = 50.0  # [m]
-    gy = 50.0  # [m]
+    gx = 51.0  # [m]
+    gy = 51.0  # [m]
     grid_size = 1.0  # [m]
     robot_size = 1.0  # [m]
 
