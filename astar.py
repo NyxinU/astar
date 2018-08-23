@@ -78,7 +78,6 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr, start):
             if len(closedset.keys()) % 10 == 0:
                 plt.pause(0.001)
 
-        print([current.x,current.y, ngoal.x, ngoal.y])
         if current.x == ngoal.x and current.y == ngoal.y:
             stop = timeit.default_timer()
             print('Time: ', stop - start)  
