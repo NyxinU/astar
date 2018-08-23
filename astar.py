@@ -87,7 +87,7 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr, start):
             ngoal.cost = current.cost
             break
         
-        if abs(current.x - ngoal.x) <= math.sqrt(2) and abs(current.y - ngoal.y) <= math.sqrt(2):
+        if abs(current.x - ngoal.x) <= math.sqrt(4) and abs(current.y - ngoal.y) <= math.sqrt(4):
             motion = [[1, 0, 0, "E"],
                 [0, 1, 0, "N"],
                 [-1, 0, 0, "W"],
@@ -211,24 +211,14 @@ def calc_index(node, xwidth, xmin, ymin):
 
 def get_motion_model():
     # dx, dy, cost
-    if motion_model_2:
-        return [[2, 0, 0, "E"],
-                [0, 2, 0, "N"],
-                [-2, 0, 0, "W"],
-                [0, -2, 0, "S"],
-                [-2, -2, math.sqrt(4), "SW"],
-                [-2, 2, math.sqrt(4), "NW"],
-                [2, -2, math.sqrt(4), "SE"],
-                [2, 2, math.sqrt(4), "NE"]]
-    else:
-        return [[1, 0, 0, "E"],
-                [0, 1, 0, "N"],
-                [-1, 0, 0, "W"],
-                [0, -1, 0, "S"],
-                [-1, -1, math.sqrt(2), "SW"],
-                [-1, 1, math.sqrt(2), "NW"],
-                [1, -1, math.sqrt(2), "SE"],
-                [1, 1, math.sqrt(2), "NE"]]
+    motion = [[3, 0, 0, "E"],
+            [0, 3, 0, "N"],
+            [-3, 0, 0, "W"],
+            [0, -3, 0, "S"],
+            [-3, -3, math.sqrt(9), "SW"],
+            [-3, 3, math.sqrt(9), "NW"],
+            [3, -3, math.sqrt(9), "SE"],
+            [3, 3, math.sqrt(9), "NE"]]
 
 
     return motion
@@ -241,8 +231,8 @@ def main():
     # start and goal position
     sx = 10.0  # [m]
     sy = 10.0  # [m]
-    gx = 51.0  # [m]
-    gy = 51.0  # [m]
+    gx = 50.0  # [m]
+    gy = 50.0  # [m]
     grid_size = 1.0  # [m]
     robot_size = 1.0  # [m]
 
