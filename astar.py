@@ -86,15 +86,15 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr, start):
             ngoal.cost = current.cost
             break
         
-        if abs(current.x - ngoal.x) <= math.sqrt(4) and abs(current.y - ngoal.y) <= math.sqrt(4):
+        if abs(current.x - ngoal.x) <= math.sqrt(18) and abs(current.y - ngoal.y) <= math.sqrt(18):
             motion = [[1, 0, 0, "E"],
                 [0, 1, 0, "N"],
                 [-1, 0, 0, "W"],
                 [0, -1, 0, "S"],
-                [-1, -1, math.sqrt(2), "SW"],
-                [-1, 1, math.sqrt(2), "NW"],
-                [1, -1, math.sqrt(2), "SE"],
-                [1, 1, math.sqrt(2), "NE"]]
+                [-1, -1, math.sqrt(18), "SW"],
+                [-1, 1, math.sqrt(18), "NW"],
+                [1, -1, math.sqrt(18), "SE"],
+                [1, 1, math.sqrt(18), "NE"]]
 
         # Remove the item from the open set
         del openset[c_id]
@@ -124,6 +124,11 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr, start):
 
             if abs(nstart.x - node.x) < abs(nstart.x - current.x) and abs(nstart.y - node.y) < abs(nstart.y - current.y):
                node.cost += 10 
+            
+            # if current.prev:
+            #     curPrev = current.prev
+            #     if curPrev.direction != node.direction: 
+            #         node.cost += 10
 
             tcost = current.cost + calc_heuristic(current, node)
 
@@ -144,7 +149,11 @@ def calc_heuristic(n1, n2):
     x = abs(n1.x - n2.x)
     y = abs(n1.y - n2.y) 
 
-    d = w * math.hypot(x, y)
+    d = w * math.hypot(x, y) 
+
+    if n1.x != n2.x or n2.y != n2.y:
+        d += 10
+
     return d
 
 
@@ -214,10 +223,11 @@ def get_motion_model():
             [0, 3, 0, "N"],
             [-3, 0, 0, "W"],
             [0, -3, 0, "S"],
-            [-3, -3, math.sqrt(9), "SW"],
-            [-3, 3, math.sqrt(9), "NW"],
-            [3, -3, math.sqrt(9), "SE"],
-            [3, 3, math.sqrt(9), "NE"]]
+            [-3, -3, 3, "SW"],
+            [-3, 3, 3, "NW"],
+            [3, -3, 3, "SE"],
+            [3, 3, 3, "NE"]]
+            
 
 
     return motion
